@@ -5,6 +5,7 @@ const path = require('path');
 const multer = require('multer');
 var bcrypt = require("bcrypt");
 const sql = require("../models/db");
+const ffmpeg = require('fluent-ffmpeg');
 
 
 
@@ -40,16 +41,19 @@ exports.getSupervisorProjects = (req, res, next) => {
   const { p_user_id, p_status, p_type, p_search } = req.query;
  
    let dbQuery = "SELECT * FROM fn_get_supervisor_projects(p_user_id := $1, p_status := $2,p_type := $3)";
-   //console.log(dbQuery)
+   //console.log(p_search)
    let dbQueryValues = [p_user_id, p_status, p_type];
    if (p_search != "") {
-      let dbQuery = "SELECT * FROM fn_get_supervisor_projects(p_user_id := $1, p_status := $2,p_type := $3,p_name_search := $4)";
     
-      let dbQueryValues = [p_user_id, p_status, p_type, p_search];
+      dbQuery = "SELECT * FROM fn_get_supervisor_projects(p_user_id := $1, p_status := $2,p_type := $3,p_name_search := $4)";
+    
+      dbQueryValues = [p_user_id, p_status, p_type, p_search];
    }
+ //  console.log("SQL Query:", dbQuery);
+//console.log("Query Values:", dbQueryValues);
    sql.query(dbQuery, dbQueryValues, (err, result) => {
      if (err) {
-       console.log('hi',err);
+     //  console.log('hi',err);
          return next(new AppError(400, "Unable to get data."))
      }
      //console.log(result)
@@ -188,6 +192,7 @@ exports.uploadDocumentFiles = (req, res, next) => {
         // "project_id" : req.params.id
         };
 //console.log('nilesh',req.files[0])
+
 
       let dbQuery =
         "SELECT * FROM fn_add_document_files( p_ref_project_id := $1,p_document_id := $2,p_s3_file_path := $3,p_file_name := $4,p_file_size := $5,p_file_type := $6,  p_document_type := $7, p_created_date := $8)";
@@ -473,6 +478,29 @@ async function getProjectAssignedProgressCount(projectId) {
     throw new Error("Unable to insert data."); // Or return a specific error value
   }
 }
+
+exports.getConfigSettings = (req, res, next) => {
+  const { p_config_key } = req.query;
+ 
+   let dbQuery = "SELECT * FROM fn_get_config_settings(p_config_key := $1)";
+   //console.log(dbQuery)
+   let dbQueryValues = [p_config_key];
+   
+   sql.query(dbQuery, dbQueryValues, (err, result) => {
+     if (err) {
+      //console.log(err)
+         return next(new AppError(400, "Unable to get data."))
+     }
+     //console.log(result)
+     if (result['rows']) {
+ 
+         res.status(200).json({
+             status: "success",
+             data: result['rows'][0]
+         });
+     }
+   });
+ };
 
 
 
