@@ -14,6 +14,7 @@ module.exports = app => {
     router.post("/deleteDocumentFiles", supervisorDataController.deleteDocumentFiles);
     router.post("/projectWorkAssignment", supervisorDataController.projectWorkAssignment);
     router.post("/updateWorkPercentage", supervisorDataController.updateWorkPercentage);
+    router.get("/getConfigSettings", supervisorDataController.getConfigSettings);
         
         
        
